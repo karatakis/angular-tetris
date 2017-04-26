@@ -1,0 +1,23 @@
+{
+  "name": "angular-tetris",
+  "version": "0.1.0",
+  "description": "AngularJS Tetris application",
+  "private": true,
+  "scripts": {
+    "postinstall": "bower install",
+    
+    "prestart": "npm install",
+    "start": "http-server -p 8080 -c-1 ./app"
+
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/karatakis/angular-tetris.git"
+  },
+  "author": "karatakis@auth.gr",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/karatakis/angular-tetris/issues"
+  },
+  "homepage": "https://github.com/karatakis/angular-tetris#readme"
+}
