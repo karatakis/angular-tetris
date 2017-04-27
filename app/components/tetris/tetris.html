@@ -1,0 +1,16 @@
+<p>Score: {{$ctrl.score}}</p>
+
+<p>
+    Next Block:
+    <div ng-repeat="line in $ctrl.nextBlock">
+        {{ line }}
+    </div>
+</p>
+
+<div>
+    <div ng-repeat="line in $ctrl.board" ng-if="$index > 1">
+        {{ line }}
+    </div>
+</div>
+
+<button type="button" ng-click="$ctrl.tick()">Tick!</button>
