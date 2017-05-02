@@ -32,6 +32,9 @@ angular.module('angular-tetris.tetris', [])
             'L': [[0, 0, 7], [7, 7, 7]]
         };
         
+        // this variable lets the user to perform one move until the blocks anchor !
+        var previousAnchorFlag = false;
+        
         // initialize the first block
         getNextBlock();
         placeBlock();
@@ -212,9 +215,8 @@ angular.module('angular-tetris.tetris', [])
         
         // function that reapeats every second
         ctrl.tick = function() {
-            var anchorFlag = ctrl.moveDown();
             var returnFlag = true;
-            if (anchorFlag) {
+            if (previousAnchorFlag) {
                 anchorBoard();
                 deleteCompletedLines();
                 if (checkGameOver()) {
@@ -222,6 +224,7 @@ angular.module('angular-tetris.tetris', [])
                 }
                 placeBlock();
             }
+            previousAnchorFlag = ctrl.moveDown();
             return returnFlag;
         };
         
