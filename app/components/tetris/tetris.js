@@ -35,6 +35,9 @@ angular.module('angular-tetris.tetris', [])
         // this variable lets the user to perform one move until the blocks anchor !
         var previousAnchorFlag = false;
         
+        // used to revert the board if sommething goes really wrong
+        var tempBoard;
+        
         // initialize the first block
         getNextBlock();
         placeBlock();
@@ -43,6 +46,14 @@ angular.module('angular-tetris.tetris', [])
         function getRandomBlock() {
             var types = Object.keys(blocks);
             return blocks[types[Math.floor(types.length * Math.random())]];
+        }
+        
+        function saveBoard() {
+            tempBoard = ctrl.board.map(function(arr) { return arr.slice(); });
+        }
+        
+        function restoreBoard() {
+            ctrl.board = tempBoard.map(function(arr) { return arr.slice(); });
         }
         
         function getNextBlock() {
@@ -129,10 +140,13 @@ angular.module('angular-tetris.tetris', [])
                 
                 // perform move left
                 if (canMove) {
+                    saveBoard();
                     for (var i = 0; i < 22; i++) {
-                        if (ctrl.board[i][j + 1] && ctrl.anchors[i][j + 1] == 0) {
+                        if (ctrl.board[i][j + 1] && ctrl.anchors[i][j + 1] == 0 && ctrl.anchors[i][j] == 0) {
                             ctrl.board[i][j] = ctrl.board[i][j + 1];
                             ctrl.board[i][j + 1] = 0;
+                        } else if (ctrl.board[i][j + 1] && ctrl.anchors[i][j + 1] == 0) {
+                            restoreBoard();
                         }
                     }
                 }
@@ -159,10 +173,13 @@ angular.module('angular-tetris.tetris', [])
                 
                 // perform move right
                 if (canMove) {
+                    saveBoard();
                     for (var i = 0; i < 22; i++) {
-                        if (ctrl.board[i][j - 1] && ctrl.anchors[i][j - 1] == 0) {
+                        if (ctrl.board[i][j - 1] && ctrl.anchors[i][j - 1] == 0 && ctrl.anchors[i][j] == 0) {
                             ctrl.board[i][j] = ctrl.board[i][j - 1];
                             ctrl.board[i][j - 1] = 0;
+                        } else if (ctrl.board[i][j - 1] && ctrl.anchors[i][j - 1] == 0) {
+                            restoreBoard();
                         }
                     }
                 }
