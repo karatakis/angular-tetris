@@ -4,7 +4,7 @@ angular.module('angular-tetris.tetris', [])
 
 .component('tetris', {
     'templateUrl': 'components/tetris/tetris.html',
-    'controller': function($scope, $element, $attrs) {
+    'controller': ["$scope", "$element", "$attrs", "$interval" , function($scope, $element, $attrs, $interval) {
         var ctrl = this;
         
         ctrl.score = 0;
@@ -41,6 +41,11 @@ angular.module('angular-tetris.tetris', [])
         // initialize the first block
         getNextBlock();
         placeBlock();
+        
+        // initialize tick interval
+        var interval = $interval(function() {
+            ctrl.tick();
+        }, 1000);
         
         // returns a random block from the possible blocks
         function getRandomBlock() {
@@ -246,7 +251,7 @@ angular.module('angular-tetris.tetris', [])
         };
         
        
-    },
+    }],
     'bindings': {
         'AI': '<'
     }
