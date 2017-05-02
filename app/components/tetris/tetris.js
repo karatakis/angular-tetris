@@ -65,7 +65,7 @@ angular.module('angular-tetris.tetris', [])
         function anchorBoard() {
             for (var i = 0; i < 22; i++) {
                 for (var j = 0 ; j < 10; j++) {
-                    if (ctrl.board[i][j] && ctrl.anchors[i][j] == 0) {
+                    if (ctrl.board[i][j]) {
                         ctrl.anchors[i][j] = 1;
                     }
                 }
@@ -73,15 +73,97 @@ angular.module('angular-tetris.tetris', [])
         }
         
         function deleteCompletedLines() {
-            // TODO
+            for (var i = 21; i > 0; i--) {
+                // for every line check if it complete
+                var completed = true;
+                for (var j = 0; j < 10; j++) {
+                    if (ctrl.board[i][j] == 0) {
+                        completed = false;
+                        break;
+                    }
+                }
+                
+                // if completed remove line and add new empty line
+                if (completed) {
+                    ctrl.board.splice(i, 1);
+                    ctrl.board.unshift([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+                    ctrl.anchors.splice(i, 1);
+                    ctrl.anchors.unshift([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+                    ctrl.score++;
+                }
+            }
+        }
+        
+        function checkGameOver() {
+            // check if a block is anchored in the extra place
+            for (var i = 0; i < 2; i++) {
+                for (var j = 0; j < 10; j++) {
+                    if (ctrl.anchors[i][j]) {
+                        return true;
+                    }
+                }
+            }
+            return true;
         }
         
         ctrl.moveLeft = function() {
-            // TODO
+            // check to see if block will go out of bounds
+            for (var i = 0; i < 22; i++) {
+                if (ctrl.board[i][0] && ctrl.anchors[i][0] == 0) {
+                    return false;
+                }
+            }
+            
+            for (var j = 0; j < 10 - 1; j++) {
+                // check if block can be moved left
+                var canMove = true;
+                for (var i = 0; i < 22; i++) {
+                    if (ctrl.board[i][j] && ctrl.anchors[i][j] == 0) {
+                        canMove = false;
+                        break;
+                    }
+                }
+                
+                // perform move left
+                if (canMove) {
+                    for (var i = 0; i < 22; i++) {
+                        if (ctrl.board[i][j + 1] && ctrl.anchors[i][j + 1] == 0) {
+                            ctrl.board[i][j] = ctrl.board[i][j + 1];
+                            ctrl.board[i][j + 1] = 0;
+                        }
+                    }
+                }
+            }
         };
         
         ctrl.moveRight = function() {
-            // TODO  
+            // check to see if block will go out of bounds
+            for (var i = 0; i < 22; i++) {
+                if (ctrl.board[i][9] && ctrl.anchors[i][9] == 0) {
+                    return false;
+                }
+            }
+            
+            for (var j = 9; j > 0; j--) {
+                // check if block can be moved right
+                var canMove = true;
+                for (var i = 0; i < 22; i++) {
+                    if (ctrl.board[i][j] && ctrl.anchors[i][j] == 0) {
+                        canMove = false;
+                        break;
+                    }
+                }
+                
+                // perform move right
+                if (canMove) {
+                    for (var i = 0; i < 22; i++) {
+                        if (ctrl.board[i][j - 1] && ctrl.anchors[i][j - 1] == 0) {
+                            ctrl.board[i][j] = ctrl.board[i][j - 1];
+                            ctrl.board[i][j - 1] = 0;
+                        }
+                    }
+                }
+            }
         };
         
         ctrl.rotateLeft = function() {
@@ -131,11 +213,16 @@ angular.module('angular-tetris.tetris', [])
         // function that reapeats every second
         ctrl.tick = function() {
             var anchorFlag = ctrl.moveDown();
+            var returnFlag = true;
             if (anchorFlag) {
                 anchorBoard();
                 deleteCompletedLines();
+                if (checkGameOver()) {
+                    returnFlag = false;
+                }
                 placeBlock();
             }
+            return returnFlag;
         };
         
        
