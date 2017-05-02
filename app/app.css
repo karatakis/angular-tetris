@@ -1,0 +1,45 @@
+ .block-row {
+  display: flex;
+ }
+ 
+ .block {
+  width: 15px;
+  height: 15px;
+  border: 1px solid black;
+ }
+ 
+ .block-0 {
+  background-color: white;
+ }
+ 
+ .hidden-block {
+  background-color: #cfd8dc; /* light grey */
+ }
+ 
+ .block-1 {
+  background-color: #00bcd4; /* cyan */
+ }
+ 
+ .block-2 {
+  background-color: #ffeb3b; /* yellow */
+ }
+ 
+ .block-3 {
+  background-color: #e91e63 ; /* pink */
+ }
+ 
+ .block-4 {
+  background-color: #4caf50; /* green */
+ }
+ 
+ .block-5 {
+  background-color: #f44336; /* red */
+ }
+ 
+ .block-6 {
+  background-color: #2196f3; /* blue */
+ }
+ 
+ .block-7 {
+  background-color: #ff9800; /* orange */
+ }
