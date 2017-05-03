@@ -105,6 +105,8 @@ angular.module('angular-tetris.tetris', [])
                     ctrl.anchors.splice(i, 1);
                     ctrl.anchors.unshift([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
                     ctrl.score++;
+                    // check again line
+                    i++;
                 }
             }
         }
@@ -191,12 +193,169 @@ angular.module('angular-tetris.tetris', [])
             position.col++;
         };
         
+        function rotationHelpLeft(points) {
+            var temp;
+            var currentPoint, nextPoint;
+            for (var i = 0; i < 4 - 1; i++) {
+                currentPoint = points[i];
+                var j = ( i + 1 ) % 4;
+                nextPoint = points[j];
+                if (ctrl.anchors[currentPoint.row][currentPoint.col] || ctrl.anchors[nextPoint.row][nextPoint.col]) {
+                    return false;
+                }
+                temp = ctrl.board[currentPoint.row][currentPoint.col];
+                ctrl.board[currentPoint.row][currentPoint.col] = ctrl.board[nextPoint.row][nextPoint.col];
+                ctrl.board[nextPoint.row][nextPoint.col] = temp;
+            }
+            
+            return true;
+        }
+        
+        function rotationHelpRight(points) {
+            var temp;
+            var currentPoint, nextPoint;
+            for (var i = 3; i > 0; i--) {
+                currentPoint = points[i];
+                var j = ( i + 1 ) % 4;
+                nextPoint = points[j];
+                if (ctrl.anchors[currentPoint.row][currentPoint.col] || ctrl.anchors[nextPoint.row][nextPoint.col]) {
+                    return false;
+                }
+                temp = ctrl.board[currentPoint.row][currentPoint.col];
+                ctrl.board[currentPoint.row][currentPoint.col] = ctrl.board[nextPoint.row][nextPoint.col];
+                ctrl.board[nextPoint.row][nextPoint.col] = temp;
+            }
+            
+            return true;
+        }
+        
         ctrl.rotateLeft = function() {
-            // TODO  
+            saveBoard();
+            
+            // vertical out of bound rotation 
+            if (position.row + 2 > 21 || position.row - 2 < 0) {
+                return;
+            }
+        
+            // horizontal out of bound rotation
+            if (position.col + 2 > 9 || position.col - 2 < 0) {
+                return;
+            }
+            
+            // inner ring corners
+            var innerCorners = [ {
+                row: position.row - 1,
+                col: position.col - 1
+            }, {
+                row: position.row - 1,
+                col: position.col + 1
+            }, {
+                row: position.row + 1,
+                col: position.col + 1
+            }, { 
+                row: position.row + 1,
+                col: position.col - 1
+            } ];
+            
+            // inner ring midle points
+            var innerMidle = [{
+                row: position.row - 1,
+                col: position.col
+            }, {
+                row: position.row,
+                col: position.col + 1
+            }, {
+                row: position.row + 1,
+                col: position.col
+            }, {
+                row: position.row,
+                col: position.col - 1
+            }];
+            
+            // outer points
+            var outerCorners = [{
+                row: position.row - 2,
+                col: position.col
+            }, {
+                row: position.row,
+                col: position.col + 2
+            }, {
+                row: position.row + 2,
+                col: position.col
+            }, {
+                row: position.row,
+                col: position.col - 2
+            }];
+            
+            var flag = rotationHelpLeft(innerCorners) && rotationHelpLeft(innerMidle) && rotationHelpLeft(outerCorners);
+            if (! flag) {
+                restoreBoard();
+            }
         };
         
         ctrl.rotateRight = function() {
-            // TODO  
+            saveBoard();
+            
+            // vertical out of bound rotation 
+            if (position.row + 2 > 21 || position.row - 2 < 0) {
+                return;
+            }
+        
+            // horizontal out of bound rotation
+            if (position.col + 2 > 9 || position.col - 2 < 0) {
+                return;
+            }
+            
+            
+            // inner ring corners
+            var innerCorners = [ {
+                row: position.row - 1,
+                col: position.col - 1
+            }, {
+                row: position.row - 1,
+                col: position.col + 1
+            }, {
+                row: position.row + 1,
+                col: position.col + 1
+            }, { 
+                row: position.row + 1,
+                col: position.col - 1
+            } ];
+            
+            // inner ring midle points
+            var innerMidle = [{
+                row: position.row - 1,
+                col: position.col
+            }, {
+                row: position.row,
+                col: position.col + 1
+            }, {
+                row: position.row + 1,
+                col: position.col
+            }, {
+                row: position.row,
+                col: position.col - 1
+            }];
+            
+            // outer points
+            var outerCorners = [{
+                row: position.row - 2,
+                col: position.col
+            }, {
+                row: position.row,
+                col: position.col + 2
+            }, {
+                row: position.row + 2,
+                col: position.col
+            }, {
+                row: position.row,
+                col: position.col - 2
+            }];
+            
+            var flag = rotationHelpRight(innerCorners) && rotationHelpRight(innerMidle) && rotationHelpRight(outerCorners);
+            if (! flag) {
+                restoreBoard();
+            }
         };
         
         // move shape down
