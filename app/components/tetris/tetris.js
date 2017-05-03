@@ -7,18 +7,6 @@ angular.module('angular-tetris.tetris', [])
     'controller': ["$scope", "$element", "$attrs", "$interval" , function($scope, $element, $attrs, $interval) {
         var ctrl = this;
         
-        ctrl.score = 0;
-        
-        ctrl.board = [];
-        ctrl.anchors = [];
-        
-        // generate the board
-        // and the anchored blocks
-        for (var i = 0; i < 22; i++) {
-            ctrl.board.push([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
-            ctrl.anchors.push([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
-        }
-        
         // tetris possible blocks
         // more infomration http://tetris.wikia.com/wiki/Tetromino
         // each number means different color
@@ -33,19 +21,20 @@ angular.module('angular-tetris.tetris', [])
         };
         
         // this variable lets the user to perform one move until the blocks anchor !
-        var previousAnchorFlag = false;
+        var previousAnchorFlag;
         
-        // used to revert the board if sommething goes really wrong
+        // used to revert the board if sommething goes wrong
         var tempBoard;
         
-        // initialize the first block
-        getNextBlock();
-        placeBlock();
+        // initialize modal
+        var scoreModal = $("#score-modal");
+        scoreModal.modal();
+        
+        // shape position needed to perform rotations
+        var position;
         
         // initialize tick interval
-        var interval = $interval(function() {
-            ctrl.tick();
-        }, 1000);
+        var interval;
         
         // returns a random block from the possible blocks
         function getRandomBlock() {
@@ -53,18 +42,22 @@ angular.module('angular-tetris.tetris', [])
             return blocks[types[Math.floor(types.length * Math.random())]];
         }
         
+        // saves a copy of the board
         function saveBoard() {
             tempBoard = ctrl.board.map(function(arr) { return arr.slice(); });
         }
         
+        // restore board to the last saved state
         function restoreBoard() {
             ctrl.board = tempBoard.map(function(arr) { return arr.slice(); });
         }
         
+        // generate next block
         function getNextBlock() {
             ctrl.nextBlock = getRandomBlock();
         }
             
+        // add shape on board
         function placeBlock() {
             // TODO: Check if block can enter the board
             for (var i = 0; i < ctrl.nextBlock.length; i++) {
@@ -75,6 +68,8 @@ angular.module('angular-tetris.tetris', [])
                     }
                 }
             }
+            
+            position = { row: 0, col: 4};
             
             // get next block
             getNextBlock();
@@ -91,6 +86,7 @@ angular.module('angular-tetris.tetris', [])
             }
         }
         
+        // finds completed lines and removes them for points
         function deleteCompletedLines() {
             for (var i = 21; i > 0; i--) {
                 // for every line check if it complete
@@ -122,7 +118,7 @@ angular.module('angular-tetris.tetris', [])
                     }
                 }
             }
-            return true;
+            return false;
         }
         
         ctrl.moveLeft = function() {
@@ -152,10 +148,12 @@ angular.module('angular-tetris.tetris', [])
                             ctrl.board[i][j + 1] = 0;
                         } else if (ctrl.board[i][j + 1] && ctrl.anchors[i][j + 1] == 0) {
                             restoreBoard();
+                            position.col++;
                         }
                     }
                 }
             }
+            position.col--;
         };
         
         ctrl.moveRight = function() {
@@ -185,10 +183,12 @@ angular.module('angular-tetris.tetris', [])
                             ctrl.board[i][j - 1] = 0;
                         } else if (ctrl.board[i][j - 1] && ctrl.anchors[i][j - 1] == 0) {
                             restoreBoard();
+                            position--;
                         }
                     }
                 }
             }
+            position.col++;
         };
         
         ctrl.rotateLeft = function() {
@@ -232,7 +232,15 @@ angular.module('angular-tetris.tetris', [])
                     break;
                 }
             }
+            position.row++;
             return anchorFlag;
+        };
+        
+        // drop shape untill it anchors
+        ctrl.drop = function() {
+            while (! previousAnchorFlag) {
+                previousAnchorFlag = ctrl.moveDown();
+            }
         };
         
         // function that reapeats every second
@@ -250,6 +258,39 @@ angular.module('angular-tetris.tetris', [])
             return returnFlag;
         };
         
+        // prepare the variables and start the game
+        ctrl.newGame = function() {
+            // reset score
+            ctrl.score = 0;
+        
+            // reset board and anchors
+            ctrl.board = [];
+            ctrl.anchors = [];
+            
+            // generate the board
+            // and the anchors
+            for (var i = 0; i < 22; i++) {
+                ctrl.board.push([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+                ctrl.anchors.push([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+            }
+            
+            previousAnchorFlag = false;
+            
+            // initialize the first block
+            getNextBlock();
+            placeBlock();
+            
+            // start game interval
+            interval = $interval(function() {
+                var flag = ctrl.tick();
+                if (!flag) {
+                    scoreModal.modal('open');
+                    $interval.cancel(interval);
+                }
+            }, 1000);
+        };
+        
+        ctrl.newGame();
        
     }],
     'bindings': {
